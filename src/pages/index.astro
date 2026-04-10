@@ -4,8 +4,17 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout>
   <main class="landing">
-    <h1 class="title">Alexandria</h1>
-    <p class="tagline">The operating system for AI-native organizations</p>
+    <div class="hero">
+      <picture>
+        <source srcset="/hero.webp" type="image/webp" />
+        <img src="/hero.jpg" alt="A futuristic vision of the ancient Library of Alexandria" class="hero-img" />
+      </picture>
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="content">
+      <h1 class="title">Alexandria</h1>
+      <p class="tagline">The operating system for AI-native organizations</p>
+    </div>
   </main>
   <footer class="footer">
     <p>
@@ -24,7 +33,38 @@ import Layout from '../layouts/Layout.astro';
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 2rem;
+    width: 100%;
+    position: relative;
+  }
+
+  .hero {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 2rem 0;
+  }
+
+  .hero-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 2rem 2rem 0;
+    border-radius: 4px;
+    background: linear-gradient(to bottom, transparent 50%, var(--color-bg) 100%);
+    pointer-events: none;
+  }
+
+  .content {
+    position: relative;
+    margin-top: -3rem;
+    padding: 0 2rem;
   }
 
   .title {
