@@ -1,9 +1,15 @@
 ---
 interface Props {
   title?: string;
+  description?: string;
 }
 
-const { title = 'Alexandria' } = Astro.props;
+const {
+  title = 'Alexandria',
+  description = 'The operating system for AI-native organizations. A SocioTechnica product.',
+} = Astro.props;
+const siteUrl = 'https://getalexandria.ai';
+const ogImage = `${siteUrl}/og.png`;
 ---
 
 <!doctype html>
@@ -12,6 +18,22 @@ const { title = 'Alexandria' } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={siteUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="Alexandria" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
