@@ -1,0 +1,105 @@
+---
+import BookHeader from '../../components/BookHeader.astro';
+import Layout from '../../layouts/Layout.astro';
+import { chapters, getChapterBySlug, getPrevNextChapters } from '../../lib/book';
+import '../../styles/book.css';
+
+export async function getStaticPaths() {
+  return chapters.map((chapter) => ({
+    params: { slug: chapter.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const chapter = getChapterBySlug(slug);
+
+if (!chapter) {
+  throw new Error(`Unknown chapter slug: ${slug}`);
+}
+
+const { prevChapter, nextChapter } = getPrevNextChapters(slug);
+
+const chapterModules = import.meta.glob('../../content/book/*.md', {
+  query: '?raw',
+  import: 'default',
+});
+const chapterModulesCompiled = import.meta.glob('../../content/book/*.md');
+const loadChapterRaw = chapterModules[`../../content/book/${slug}.md`];
+const loadChapter = chapterModulesCompiled[`../../content/book/${slug}.md`];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let Content: any = null;
+let readingTime = '';
+
+if (chapter.status === 'published') {
+  if (!loadChapter) {
+    throw new Error(`Missing content for ${slug}`);
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mod = (await loadChapter()) as { Content: any };
+  Content = mod.Content;
+
+  if (loadChapterRaw) {
+    const rawContent = (await loadChapterRaw()) as string;
+    const wordCount = rawContent.split(/\s+/).filter((word) => word.length > 0).length;
+    const minutes = Math.ceil(wordCount / 200);
+    readingTime = `${minutes} min read`;
+  }
+}
+---
+
+<Layout title={`${chapter.title} — The 7 Turn Work Week`} description={chapter.teaser}>
+  <BookHeader currentChapter={chapter} slot="nav" />
+  <main class="container book-page">
+    <header class="chapter-header">
+      <div class="chapter-meta-line">
+        <p>Chapter {chapter.number}</p>
+        {readingTime && <p class="reading-time">{readingTime}</p>}
+      </div>
+      <h1>{chapter.title}</h1>
+    </header>
+
+    {
+      chapter.status === 'published' && Content ? (
+        <article class="chapter-body">
+          <Content />
+        </article>
+      ) : (
+        <section class="chapter-coming-soon">
+          <p>This chapter is coming soon.</p>
+          <p>{chapter.teaser}</p>
+          <p>
+            <a href="/book">Back to contents</a>
+          </p>
+        </section>
+      )
+    }
+
+    <nav class="chapter-nav" aria-label="Chapter navigation">
+      <div>
+        {
+          prevChapter ? (
+            prevChapter.status === 'published' ? (
+              <a href={`/book/${prevChapter.slug}`}>&larr; Prev: {prevChapter.title}</a>
+            ) : (
+              <span>&larr; Prev: {prevChapter.title} (Coming soon)</span>
+            )
+          ) : null
+        }
+      </div>
+      <div>
+        {
+          nextChapter ? (
+            nextChapter.status === 'published' ? (
+              <a href={`/book/${nextChapter.slug}`}>&rarr; Next: {nextChapter.title}</a>
+            ) : (
+              <span>&rarr; Next: {nextChapter.title} (Coming soon)</span>
+            )
+          ) : (
+            <span>End of available chapters</span>
+          )
+        }
+        {nextChapter?.status === 'coming_soon' ? <p>{nextChapter.teaser}</p> : null}
+      </div>
+    </nav>
+  </main>
+</Layout>

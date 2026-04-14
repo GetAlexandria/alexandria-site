@@ -1,0 +1,320 @@
+---
+// Alexandria.astro - Main landing page sections
+// Sections: Hero, Situation, The Stack, Roadmap, Business Model, Team, Book, Workshop, CTA
+import '../styles/alexandria.css';
+import { getRecentArticles } from '../data/workshopArticles';
+
+const recentArticles = getRecentArticles(3);
+---
+
+<!-- ==================== HERO SECTION ==================== -->
+<section class="hero" id="hero">
+  <div class="hero-image-container">
+    <img
+      src="/hero.jpg"
+      alt="A futuristic vision of the ancient Library of Alexandria"
+      class="hero-image"
+    />
+    <div class="hero-image-fade"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ==================== PROBLEM SECTION ==================== -->
+<section class="problem" id="problem">
+  <div class="container">
+    <h2>The Situation</h2>
+    <p>
+      Companies are deploying AI agents across every function. But <span class="highlight"
+        >teamwork has no enabling infrastructure</span
+      >. Agents work in isolation. Context is copy-pasted between tools. Knowledge lives in people's
+      heads, scattered docs, and tribal Slack lore. The more capable your AI, the more expensive the
+      coordination failure.
+    </p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ==================== THE STACK SECTION ==================== -->
+<section class="the-stack" id="the-stack">
+  <div class="container">
+    <h2>Enter Alexandria</h2>
+    <p class="stack-subtitle">The Operating System for AI-Native Organizations</p>
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="card-image">
+          <img
+            src="/stack-library.png"
+            alt="Ancient library with glowing crystals and circuit-like floor channels"
+            loading="lazy"
+          />
+        </div>
+        <h3>Federated Context Libraries</h3>
+        <p>
+          Structured, AI-staffed knowledge graphs that operationalize institutional intelligence.
+          The reasoning, constraints, and connections that make employees effective.
+        </p>
+      </div>
+      <div class="stack-card">
+        <div class="card-image">
+          <img
+            src="/stack-forge.png"
+            alt="Medieval forge with holographic diagnostic screens"
+            loading="lazy"
+          />
+        </div>
+        <h3>Instrumented Output Engines</h3>
+        <p>
+          Libraries plug in where AI teams actually produce &mdash; software, content, sales
+          materials, research, customer operations. Every task pulls a briefing. Every output
+          generates feedback.
+        </p>
+      </div>
+      <div class="stack-card">
+        <div class="card-image">
+          <img
+            src="/stack-chess.png"
+            alt="Hellenofuturistic chessboard with classical statue pieces and holographic overlays"
+            loading="lazy"
+          />
+        </div>
+        <h3>Immersive Visual UI</h3>
+        <p>
+          Your complex organization, displayed on a multi-view grid. See your AI agents, embodied as
+          living art, across hundreds of projects. Reorient and redeploy them in real time.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ==================== ROADMAP (HONEST ALPHA) ==================== -->
+<section class="roadmap" id="roadmap">
+  <div class="container">
+    <h2>The Roadmap</h2>
+    <div class="roadmap-image">
+      <img
+        src="/roadmap-city.png"
+        alt="Three-panel city progression from ancient village to classical city to futuristic empire"
+        loading="lazy"
+      />
+    </div>
+
+    <div class="roadmap-tiers">
+      <div class="tier active">
+        <div class="tier-label">
+          Now
+          <span class="tier-time">2026</span>
+        </div>
+        <div class="tier-content">
+          <h3>AI-Native Software Teams</h3>
+          <p>
+            Engineering teams running multi-agent development are hitting the context coordination
+            wall first. Alexandria enters where the need is sharpest: structured context delivery
+            for software factories and AI-augmented development workflows.
+          </p>
+        </div>
+        <div class="tier-cta">
+          <a
+            href="https://sociotechnica.org/alexandria/"
+            class="btn-outline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Try it now
+          </a>
+        </div>
+      </div>
+
+      <div class="tier">
+        <div class="tier-label">
+          Next
+          <span class="tier-time">2027</span>
+        </div>
+        <div class="tier-content">
+          <h3>Product Organization Layer</h3>
+          <p>
+            The same primitives spread from engineering to design, marketing, and distribution. When
+            production velocity forces every function to keep pace, the context library becomes the
+            organizational nervous system.
+          </p>
+        </div>
+        <div class="tier-cta">
+          <a href="#cta" class="btn-outline">Follow along</a>
+        </div>
+      </div>
+
+      <div class="tier">
+        <div class="tier-label">
+          Later
+          <span class="tier-time">2028</span>
+        </div>
+        <div class="tier-content">
+          <h3>Federated Enterprise</h3>
+          <p>
+            Corporate to division to team. Model-agnostic. The division head from the top of this
+            page isn't managing AI tools &mdash; she's overseeing an organizational intelligence
+            system that learns from every action it takes. Alexandria becomes as foundational as
+            cloud compute.
+          </p>
+        </div>
+        <div class="tier-cta">
+          <a href="#cta" class="btn-outline">Follow along</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ==================== BUSINESS MODEL ==================== -->
+<section class="business-model" id="business-model">
+  <div class="container">
+    <h2>The Model</h2>
+    <div class="model-content">
+      <p>
+        Think WordPress.org and WordPress.com. The library format is open source. We offer a hosted
+        version and service infrastructure to the enterprise.
+      </p>
+    </div>
+    <div class="model-image">
+      <img
+        src="/hero-mosaic.png"
+        alt="Ancient mosaic fresco of diverse people gathered around a holographic world map"
+        loading="lazy"
+      />
+    </div>
+    <div class="model-split">
+      <div class="model-side open-source">
+        <h3>Open Source</h3>
+        <p>
+          The library format. Free for individuals and local use. Your knowledge, your control, your
+          infrastructure.
+        </p>
+      </div>
+      <div class="model-side hosted">
+        <h3>Hosted &amp; Optimized</h3>
+        <p>
+          Token-based pricing for teams and enterprises. Sync, optimization, and performance data.
+          At enterprise volume, precise context delivery eliminates wasted tokens &mdash; the
+          efficiency gain pays for itself.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ==================== BOOK CALLOUT ==================== -->
+<section class="book-callout" id="book">
+  <div class="container">
+    <h2>The Book</h2>
+    <div class="book-callout-grid">
+      <div class="book-callout-image">
+        <a href="/book">
+          <img src="/book-cover.png" alt="The 7 Turn Work Week book cover" loading="lazy" />
+        </a>
+      </div>
+      <div class="book-callout-content">
+        <p>
+          You and your team just unlocked unlimited work. AI agents that produce around the clock.
+          The output is real. The potential is staggering. And your best people are breaking.
+        </p>
+        <p>
+          <em>The 7 Turn Work Week</em> replaces the workday with the turn &mdash; a five-hour cycle of
+          focused human judgment followed by genuine cognitive rest while agents run.
+        </p>
+        <p><em>Publishing one chapter at a time.</em></p>
+        <a class="book-callout-link" href="/book">Read the book &rarr;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ==================== TEAM ==================== -->
+<section class="team" id="team">
+  <div class="container">
+    <h2>The Team</h2>
+    <div class="team-grid">
+      <div class="team-member">
+        <h3>Danvers Fleury</h3>
+        <p class="role">Architect of Alexandria</p>
+        <p>
+          Started at Monster.com weeks after its IPO, fell in love with the problem of how teams
+          scale and never stopped working it. 25 years across startups, turnarounds, and
+          organizational design.
+        </p>
+      </div>
+      <div class="team-member">
+        <h3>Jess Martin</h3>
+        <p class="role">Builder of Alexandria</p>
+        <p>
+          Recruited out of school to build The Sims. Two decades building knowledge representation
+          and real-time collaboration systems across multiple startups.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ==================== FROM THE WORKSHOP ==================== -->
+<section class="workshop" id="workshop">
+  <div class="container">
+    <div class="workshop-header">
+      <h2>From the Workshop</h2>
+      <a href="https://sociotechnica.org/notebook/" target="_blank" rel="noopener noreferrer"
+        >Full labnotes &rarr;</a
+      >
+    </div>
+    <div class="workshop-articles">
+      {
+        recentArticles.map((article) => (
+          <a class="workshop-article" href={article.url} target="_blank" rel="noopener noreferrer">
+            <span class="article-number">{article.number}</span>
+            <span class="article-title">{article.title}</span>
+            <time datetime={article.date}>
+              {new Date(article.date).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                timeZone: 'UTC',
+              })}
+            </time>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ==================== CTA ==================== -->
+<section class="cta" id="cta">
+  <div class="container">
+    <h2>Stay in the Loop</h2>
+    <p>We write about what we're building, what's working, and what isn't.</p>
+    <div class="cta-secondary">
+      <p>Subscribe for updates as Alexandria evolves.</p>
+      <form
+        class="email-form"
+        action="https://buttondown.com/api/emails/embed-subscribe/sociotechnica"
+        method="post"
+        target="popupwindow"
+      >
+        <input type="email" name="email" placeholder="you@company.com" required />
+        <input type="hidden" name="tag" value="alexandria" />
+        <button type="submit">Subscribe</button>
+      </form>
+    </div>
+  </div>
+</section>

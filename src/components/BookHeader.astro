@@ -1,0 +1,419 @@
+---
+import type { BookChapter } from '../data/bookChapters';
+import { chapters } from '../lib/book';
+
+interface Props {
+  currentChapter?: BookChapter;
+  showProgress?: boolean;
+}
+
+const { currentChapter, showProgress = true } = Astro.props;
+const statusLabel = (status: string) => (status === 'published' ? 'Published' : 'Coming soon');
+---
+
+<header class="book-header">
+  <div class="book-header-content">
+    <a class="book-header-logo" href="/" aria-label="Alexandria home">
+      <span class="book-wordmark">ALEXANDRIA</span>
+    </a>
+
+    <div class="chapter-selector">
+      <button
+        class="chapter-selector-toggle"
+        aria-expanded="false"
+        aria-haspopup="listbox"
+        aria-label="Select chapter"
+      >
+        {
+          currentChapter ? (
+            <span>
+              <span class="chapter-num">Ch. {currentChapter.number}</span>
+              <span class="chapter-title">{currentChapter.title}</span>
+            </span>
+          ) : (
+            <span>Table of Contents</span>
+          )
+        }
+        <svg
+          class="chapter-selector-arrow"
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M2.5 4.5L6 8L9.5 4.5"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <div class="chapter-selector-dropdown" role="listbox">
+        <a
+          href="/book"
+          class="chapter-selector-item"
+          class:list={[{ 'is-current': !currentChapter }]}
+          role="option"
+        >
+          <span class="chapter-selector-item-num">Overview</span>
+          <span class="chapter-selector-item-title">Table of Contents</span>
+        </a>
+        {
+          chapters.map((chapter) => (
+            <a
+              href={chapter.status === 'published' ? `/book/${chapter.slug}` : undefined}
+              class="chapter-selector-item"
+              class:list={[
+                { 'is-current': currentChapter?.slug === chapter.slug },
+                { 'is-disabled': chapter.status !== 'published' },
+              ]}
+              role="option"
+              aria-disabled={chapter.status !== 'published'}
+            >
+              <span class="chapter-selector-item-num">Chapter {chapter.number}</span>
+              <span class="chapter-selector-item-title">{chapter.title}</span>
+              {chapter.status !== 'published' && (
+                <span class="chapter-selector-item-status">{statusLabel(chapter.status)}</span>
+              )}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+  {
+    showProgress ? (
+      <div
+        class="reading-progress"
+        role="progressbar"
+        aria-valuenow="0"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <div class="reading-progress-bar" />
+      </div>
+    ) : (
+      <div class="header-border" />
+    )
+  }
+</header>
+
+<script>
+  function initBookHeader() {
+    const toggle = document.querySelector('.chapter-selector-toggle');
+    const dropdown = document.querySelector('.chapter-selector-dropdown');
+
+    if (toggle && dropdown) {
+      toggle.addEventListener('click', () => {
+        const expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+        dropdown.classList.toggle('is-open');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!toggle.contains(e.target as Node) && !dropdown.contains(e.target as Node)) {
+          toggle.setAttribute('aria-expanded', 'false');
+          dropdown.classList.remove('is-open');
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          toggle.setAttribute('aria-expanded', 'false');
+          dropdown.classList.remove('is-open');
+        }
+      });
+    }
+
+    const progressBar = document.querySelector('.reading-progress-bar') as HTMLElement | null;
+    const progressContainer = document.querySelector('.reading-progress') as HTMLElement | null;
+
+    if (progressBar && progressContainer) {
+      const bar = progressBar;
+      const container = progressContainer;
+
+      function updateProgress() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? Math.min((scrollTop / docHeight) * 100, 100) : 0;
+        bar.style.width = `${progress}%`;
+        container.setAttribute('aria-valuenow', String(Math.round(progress)));
+      }
+
+      window.addEventListener('scroll', updateProgress, { passive: true });
+      updateProgress();
+    }
+
+    function fastSmoothScroll(targetY: number, duration: number = 150) {
+      const startY = window.scrollY;
+      const diff = targetY - startY;
+      let start: number | null = null;
+
+      function step(timestamp: number) {
+        if (!start) start = timestamp;
+        const elapsed = timestamp - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        window.scrollTo(0, startY + diff * eased);
+        if (elapsed < duration) {
+          requestAnimationFrame(step);
+        }
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    document.querySelectorAll('.book-page a[href^="#"]').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          const target = document.getElementById(href.slice(1));
+          if (target) {
+            e.preventDefault();
+            const headerHeight = 65;
+            const targetY = target.getBoundingClientRect().top + window.scrollY - headerHeight - 20;
+            fastSmoothScroll(targetY, 150);
+            history.pushState(null, '', href);
+          }
+        }
+      });
+    });
+
+    document.querySelectorAll('.book-page h2, .book-page h3').forEach((heading) => {
+      if (heading.closest('.book-landing-contents') || heading.closest('.book-landing')) {
+        return;
+      }
+      if (!heading.id) {
+        heading.id =
+          heading.textContent
+            ?.toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '') || '';
+      }
+
+      if (heading.id) {
+        heading.classList.add('heading-anchor');
+        heading.setAttribute('role', 'link');
+        heading.setAttribute('tabindex', '0');
+
+        const handleClick = () => {
+          history.pushState(null, '', `#${heading.id}`);
+          const headerHeight = 65;
+          const targetY =
+            (heading as HTMLElement).getBoundingClientRect().top +
+            window.scrollY -
+            headerHeight -
+            20;
+          fastSmoothScroll(targetY, 150);
+        };
+
+        heading.addEventListener('click', handleClick);
+        heading.addEventListener('keydown', (e) => {
+          if ((e as KeyboardEvent).key === 'Enter' || (e as KeyboardEvent).key === ' ') {
+            e.preventDefault();
+            handleClick();
+          }
+        });
+      }
+    });
+  }
+
+  initBookHeader();
+  document.addEventListener('astro:page-load', initBookHeader);
+</script>
+
+<style>
+  .book-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: #0f0f14;
+  }
+
+  .book-header-content {
+    height: 60px;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .book-header-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .book-wordmark {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    color: var(--color-cream);
+  }
+
+  .book-header-logo:hover .book-wordmark {
+    color: var(--color-amber);
+  }
+
+  .chapter-selector {
+    position: relative;
+    min-width: 0;
+    max-width: 280px;
+  }
+
+  .chapter-selector-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: 1px solid rgba(232, 228, 220, 0.12);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--color-cream);
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+
+  .chapter-selector-toggle:hover {
+    border-color: rgba(232, 228, 220, 0.25);
+  }
+
+  .chapter-selector-toggle > span {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chapter-num {
+    color: var(--color-cream-muted);
+    margin-right: 0.35rem;
+  }
+
+  .chapter-title {
+    font-weight: 500;
+  }
+
+  .chapter-selector-arrow {
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+
+  .chapter-selector-toggle[aria-expanded='true'] .chapter-selector-arrow {
+    transform: rotate(180deg);
+  }
+
+  .chapter-selector-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    width: 320px;
+    max-height: 70vh;
+    overflow-y: auto;
+    background: #0f0f14;
+    border: 1px solid rgba(232, 228, 220, 0.12);
+    border-radius: 8px;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.3),
+      0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+  }
+
+  .chapter-selector-dropdown.is-open {
+    display: block;
+  }
+
+  .chapter-selector-item {
+    display: block;
+    padding: 0.625rem 0.875rem;
+    text-decoration: none;
+    color: var(--color-cream);
+    border-bottom: 1px solid rgba(232, 228, 220, 0.06);
+    transition: background-color 0.1s ease;
+  }
+
+  .chapter-selector-item:last-child {
+    border-bottom: none;
+  }
+
+  .chapter-selector-item:hover:not(.is-disabled) {
+    background: rgba(232, 228, 220, 0.04);
+  }
+
+  .chapter-selector-item.is-current {
+    background: rgba(201, 168, 76, 0.12);
+  }
+
+  .chapter-selector-item.is-disabled {
+    cursor: default;
+    opacity: 0.4;
+  }
+
+  .chapter-selector-item-num {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-cream-muted);
+    margin-bottom: 0;
+  }
+
+  .chapter-selector-item-title {
+    display: block;
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+
+  .chapter-selector-item-status {
+    display: inline-block;
+    font-size: 0.65rem;
+    color: var(--color-cream-muted);
+  }
+
+  .reading-progress {
+    height: 3px;
+    background: rgba(232, 228, 220, 0.06);
+  }
+
+  .reading-progress-bar {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(to right, var(--color-amber-deep), var(--color-amber));
+    transition: width 0.1s ease-out;
+  }
+
+  .header-border {
+    height: 1px;
+    background: rgba(232, 228, 220, 0.06);
+  }
+
+  @media (max-width: 720px) {
+    .book-header-content {
+      padding: 0 1rem;
+      gap: 1rem;
+    }
+
+    .book-wordmark {
+      font-size: 0.95rem;
+    }
+
+    .chapter-num {
+      display: none;
+    }
+  }
+</style>

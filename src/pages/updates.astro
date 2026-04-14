@@ -1,0 +1,218 @@
+---
+import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+import Layout from '../layouts/Layout.astro';
+import TopNav from '../components/TopNav.astro';
+import Footer from '../components/Footer.astro';
+
+interface ChangelogFrontmatter {
+  version: string;
+  date: string;
+  prNumber: number;
+  prUrl: string;
+}
+
+interface ChangelogModule {
+  frontmatter: ChangelogFrontmatter;
+  Content: AstroComponentFactory;
+}
+
+const changelogModules = import.meta.glob<ChangelogModule>('../content/changelog/*.md', {
+  eager: true,
+});
+
+const allEntries = Object.entries(changelogModules)
+  .map(([path, mod]) => ({
+    slug: path.split('/').pop()?.replace('.md', '') || '',
+    frontmatter: mod.frontmatter,
+    Content: mod.Content,
+  }))
+  .sort((a, b) => {
+    const dateDiff =
+      new Date(b.frontmatter.date).getTime() - new Date(a.frontmatter.date).getTime();
+    if (dateDiff !== 0) return dateDiff;
+    const aParts = a.frontmatter.version.split('.').map(Number);
+    const bParts = b.frontmatter.version.split('.').map(Number);
+    for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+      const diff = (bParts[i] || 0) - (aParts[i] || 0);
+      if (diff !== 0) return diff;
+    }
+    return 0;
+  });
+
+const groupedByDate = allEntries.reduce(
+  (groups, entry) => {
+    const date = entry.frontmatter.date;
+    if (!groups[date]) groups[date] = [];
+    groups[date].push(entry);
+    return groups;
+  },
+  {} as Record<string, typeof allEntries>
+);
+
+const dayGroups = Object.entries(groupedByDate).sort(
+  ([a], [b]) => new Date(b).getTime() - new Date(a).getTime()
+);
+---
+
+<Layout
+  title="Updates — Alexandria"
+  description="Product changelog and release notes for Alexandria."
+>
+  <TopNav slot="nav" />
+  <main class="container updates-page">
+    <h1>Updates</h1>
+    <p class="updates-intro">Product changelog and release notes.</p>
+
+    <div class="changelog-list">
+      {
+        dayGroups.map(([date, entries]) => (
+          <article class="changelog-entry">
+            <header class="changelog-header">
+              <h2>v{entries[0].frontmatter.version}</h2>
+              <time datetime={date}>
+                {new Date(date).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  timeZone: 'UTC',
+                })}
+              </time>
+            </header>
+            <div class="changelog-content">
+              {entries.map(({ Content }) => (
+                <Content />
+              ))}
+            </div>
+            {entries.some(({ frontmatter }) => frontmatter.prUrl) && (
+              <p class="changelog-pr-links">
+                PRs:{' '}
+                {entries
+                  .filter(({ frontmatter }) => frontmatter.prUrl)
+                  .map(({ frontmatter }, i, arr) => (
+                    <>
+                      <a
+                        class="changelog-pr-link"
+                        href={frontmatter.prUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        #{frontmatter.prNumber}
+                      </a>
+                      {i < arr.length - 1 ? ', ' : ''}
+                    </>
+                  ))}
+              </p>
+            )}
+          </article>
+        ))
+      }
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .updates-page {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+  }
+
+  .updates-page h1 {
+    margin-bottom: 0.5rem;
+  }
+
+  .updates-intro {
+    font-family: var(--font-body);
+    color: var(--color-cream-muted);
+    margin-bottom: 2.5rem;
+  }
+
+  .changelog-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .changelog-entry {
+    background: var(--color-bg-card);
+    border: 1px solid rgba(232, 228, 220, 0.08);
+    border-radius: 6px;
+    padding: 1.5rem 2rem;
+  }
+
+  .changelog-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .changelog-header h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    margin: 0;
+  }
+
+  .changelog-header time {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--color-cream-muted);
+  }
+
+  .changelog-content {
+    font-family: var(--font-body);
+    color: var(--color-ink-light);
+    line-height: 1.7;
+  }
+
+  .changelog-content :global(h1) {
+    display: none;
+  }
+
+  .changelog-content :global(ul) {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+  }
+
+  .changelog-content :global(li) {
+    margin-bottom: 0.5rem;
+  }
+
+  .changelog-content :global(a) {
+    color: var(--color-amber);
+    text-decoration: none;
+  }
+
+  .changelog-content :global(a:hover) {
+    text-decoration: underline;
+  }
+
+  .changelog-content :global(img) {
+    max-width: 100%;
+    border-radius: 6px;
+    margin: 0.5rem 0 1rem;
+  }
+
+  .changelog-pr-links {
+    margin-top: 1rem;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    color: var(--color-cream-muted);
+  }
+
+  .changelog-pr-link {
+    color: var(--color-amber);
+    text-decoration: none;
+  }
+
+  .changelog-pr-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .changelog-entry {
+      padding: 1.25rem;
+    }
+  }
+</style>
