@@ -44,9 +44,12 @@ jobs:
 
       - name: Select deployment branch
         id: deployment-branch
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "name=${{ github.head_ref }}" >> "$GITHUB_OUTPUT"
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            echo "name=$HEAD_REF" >> "$GITHUB_OUTPUT"
           else
             echo "name=main" >> "$GITHUB_OUTPUT"
           fi
