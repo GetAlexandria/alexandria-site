@@ -1,11 +1,4 @@
 # Cloudflare Pages configuration
 name = "alexandria-site"
 compatibility_date = "2024-01-01"
-
-[build]
-command = "npm run build"
-cwd = "."
-
-[build.upload]
-format = "service-worker"
-dir = "dist"
+pages_build_output_dir = "dist"
