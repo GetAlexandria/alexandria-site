@@ -103,7 +103,7 @@ jobs:
               issue_number,
             });
             const existing = comments.find((comment) =>
-              comment.user.type === 'Bot' && comment.body && comment.body.includes(marker),
+              comment.body && comment.body.includes(marker),
             );
 
             if (existing) {
