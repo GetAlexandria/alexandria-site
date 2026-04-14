@@ -1,0 +1,387 @@
+/* Book page styles — Dark theme, Cormorant Garamond + Inter */
+
+/* Override base font size for book pages */
+html:has(.book-page) {
+  font-size: 16px !important;
+}
+
+body:has(.book-page) {
+  --book-header-height: 65px; /* 60px header + 5px progress bar */
+  background: #0f0f14;
+}
+
+/* Hide paper texture and ambient glow on book pages */
+body:has(.book-page)::before,
+body:has(.book-page) .ambient-glow {
+  display: none;
+}
+
+.book-page {
+  --book-ink: #e8e4dc;
+  --book-ink-muted: rgba(232, 228, 220, 0.6);
+  --book-rule: rgba(232, 228, 220, 0.1);
+  --book-link: #e8e4dc;
+
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--book-ink);
+}
+
+.book-page.container {
+  max-width: 74ch;
+  margin: calc(var(--book-header-height) + 2rem) auto 5rem;
+  padding: 0 1.5rem;
+  background: #0f0f14;
+}
+
+/* Headings — Cormorant Garamond */
+.book-page h1,
+.book-page h2,
+.book-page h3,
+.book-page h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--book-ink);
+  line-height: 1.2;
+}
+
+.book-page h1 {
+  font-size: 2.8rem;
+  margin-top: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.book-page h2 {
+  font-style: italic;
+  font-size: 2rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.book-page h3 {
+  font-style: italic;
+  font-size: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Clickable heading anchors */
+.book-page h2.heading-anchor,
+.book-page h3.heading-anchor {
+  cursor: pointer;
+  position: relative;
+}
+
+.book-page h2.heading-anchor::before,
+.book-page h3.heading-anchor::before {
+  content: '#';
+  position: absolute;
+  left: -1em;
+  opacity: 0;
+  color: var(--book-rule);
+  transition: opacity 0.15s ease;
+}
+
+.book-page h2.heading-anchor:hover::before,
+.book-page h3.heading-anchor:hover::before,
+.book-page h2.heading-anchor:focus::before,
+.book-page h3.heading-anchor:focus::before {
+  opacity: 1;
+}
+
+.book-page h4 {
+  font-size: 1.2rem;
+  font-style: italic;
+  color: var(--book-ink-muted);
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.book-page p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--book-ink);
+  margin: 1.25rem 0;
+}
+
+.book-page sup,
+.book-page sub {
+  vertical-align: baseline;
+  position: relative;
+  font-size: 0.7em;
+  line-height: 0;
+}
+
+.book-page sup {
+  top: -0.5em;
+}
+
+.book-page sub {
+  bottom: -0.25em;
+}
+
+.book-page a {
+  color: var(--book-link);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: 0.05em;
+  transition:
+    text-decoration-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.book-page a:hover {
+  text-decoration-color: var(--color-amber);
+  color: var(--color-amber);
+}
+
+.book-page strong {
+  font-weight: 600;
+}
+
+.book-page em {
+  font-style: italic;
+}
+
+.book-page ul,
+.book-page ol {
+  margin: 1.25rem 0;
+  padding-left: 1.5rem;
+}
+
+.book-page li {
+  margin: 0.5rem 0;
+}
+
+.book-page section {
+  padding: 0;
+  margin: 2rem 0;
+}
+
+/* Landing page contents */
+.book-landing-contents h2 {
+  margin-top: 3rem;
+}
+
+.book-landing-contents section {
+  margin: 1rem 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--book-rule);
+}
+
+.book-landing-contents section:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.book-landing-contents h3 {
+  margin: 0.5rem 0;
+  color: var(--book-ink-muted);
+  font-weight: 400;
+}
+
+.book-landing-contents ul {
+  margin-top: 0.5rem;
+}
+
+.book-page > ul,
+.book-page section > ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.book-page > ul li,
+.book-page section > ul li {
+  padding: 0.5rem 0 0.75rem;
+}
+
+.book-page section > ul li p {
+  margin-top: 0.4rem;
+  color: var(--book-ink-muted);
+  font-size: 0.95rem;
+}
+
+.book-page > ul li span:last-child,
+.book-page section > ul li span:last-child {
+  color: var(--book-ink-muted);
+  font-size: 0.95rem;
+}
+
+.book-page blockquote {
+  margin: 2rem 0;
+  padding: 0.25rem 1.5rem;
+  border-left: 2px solid rgba(201, 168, 76, 0.3);
+  color: var(--book-ink-muted);
+  font-size: 1.1rem;
+}
+
+/* Chapter header */
+.chapter-header {
+  margin-bottom: 2rem;
+}
+
+.chapter-meta-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.chapter-header p {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.85rem;
+  color: var(--book-ink-muted);
+  margin-bottom: 0.5rem;
+}
+
+.chapter-header .reading-time {
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 0.8rem;
+}
+
+.chapter-header h1 {
+  margin-top: 0.5rem;
+}
+
+/* Chapter body ordered lists */
+.chapter-body ol {
+  font-size: 1.05rem;
+  color: var(--book-ink-muted);
+}
+
+/* Chapter navigation */
+.chapter-nav {
+  margin: 3rem 0 2.5rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--book-rule);
+  display: grid;
+  gap: 1.25rem;
+  font-size: 1rem;
+}
+
+.chapter-nav span {
+  color: var(--book-ink-muted);
+}
+
+.chapter-nav p {
+  margin: 0.5rem 0 0;
+  color: var(--book-ink-muted);
+}
+
+/* In-chapter table of contents */
+.chapter-toc {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--book-rule);
+}
+
+.chapter-toc summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--book-ink);
+  list-style: none;
+}
+
+.chapter-toc summary::-webkit-details-marker {
+  display: none;
+}
+
+.chapter-toc summary::after {
+  content: '\25BE';
+  margin-left: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--book-ink-muted);
+}
+
+.chapter-toc[open] summary::after {
+  content: '\25B4';
+}
+
+.chapter-toc ul {
+  margin-top: 1rem;
+  padding-left: 1rem;
+}
+
+/* Coming soon chapter state */
+.chapter-coming-soon {
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--book-rule);
+  border-bottom: 1px solid var(--book-rule);
+}
+
+.chapter-coming-soon p:first-child {
+  font-weight: 600;
+}
+
+/* Status and meta styles */
+.book-page .status-muted {
+  color: var(--book-ink-muted);
+}
+
+.book-page .chapter-meta {
+  color: var(--book-ink-muted);
+  font-size: 0.95rem;
+}
+
+.book-page .chapter-teaser {
+  color: var(--book-ink-muted);
+  font-size: 1.05rem;
+}
+
+/* Mobile styles */
+@media (max-width: 720px) {
+  html:has(.book-page) {
+    font-size: 15px !important;
+  }
+
+  body:has(.book-page) {
+    --book-header-height: 65px;
+  }
+
+  .book-page.container {
+    margin: calc(var(--book-header-height) + 1.5rem) auto 4rem;
+    padding: 0 1rem;
+  }
+
+  .book-page h1 {
+    margin-top: 2rem;
+  }
+
+  .chapter-nav {
+    gap: 1rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+
+  body::before,
+  .ambient-glow {
+    display: none !important;
+  }
+
+  .book-page.container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  .chapter-nav,
+  .chapter-toc,
+  .book-header {
+    display: none !important;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}

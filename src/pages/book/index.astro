@@ -1,0 +1,67 @@
+---
+import BookHeader from '../../components/BookHeader.astro';
+import Layout from '../../layouts/Layout.astro';
+import { getFirstPublishedChapter, groupChaptersByPart } from '../../lib/book';
+import '../../styles/book.css';
+
+const firstPublished = getFirstPublishedChapter();
+const startLink = firstPublished ? `/book/${firstPublished.slug}` : '/book';
+const groupedChapters = groupChaptersByPart();
+const statusLabel = (status: string) => (status === 'published' ? 'Published' : 'Coming soon');
+---
+
+<Layout
+  title="The 7 Turn Work Week — Feel More Human Working with AI"
+  description="A book about designing operating rhythms that match human cognitive architecture. Seven turns. Thirty-five hours. A week designed for humans working alongside AI."
+>
+  <BookHeader slot="nav" showProgress={false} />
+  <main class="container book-page book-landing">
+    <h1>The 7 Turn Work Week</h1>
+    <p class="book-subtitle">Feel More Human Working with AI</p>
+    <p>The team that rests strategically will outperform the team that pushes continuously.</p>
+    {
+      firstPublished && (
+        <p>
+          <a href={startLink}>Start Reading</a>
+        </p>
+      )
+    }
+
+    <div class="book-landing-contents">
+      {
+        groupedChapters.map((group) => (
+          <section>
+            <h2>{group.part}</h2>
+            <ul>
+              {group.chapters.map((chapter) => (
+                <li>
+                  <h3>
+                    Chapter {chapter.number}:
+                    {chapter.status === 'published' ? (
+                      <a href={`/book/${chapter.slug}`}>{chapter.title}</a>
+                    ) : (
+                      <span>{chapter.title}</span>
+                    )}
+                    <span> — {statusLabel(chapter.status)}</span>
+                  </h3>
+                  <p>{chapter.teaser}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .book-subtitle {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--color-amber);
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+  }
+</style>

@@ -2,14 +2,19 @@
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  imageAlt?: string;
 }
 
 const {
-  title = 'Alexandria',
-  description = 'The operating system for AI-native organizations. A SocioTechnica product.',
+  title = 'Alexandria — The Operating System for AI-Native Organizations',
+  description = 'Alexandria is a full-stack operating system for AI-native organizations. Federated context libraries, instrumented output engines, and an immersive visual UI.',
+  image = '/og-image.png',
+  imageAlt = 'Alexandria — The Operating System for AI-Native Organizations',
 } = Astro.props;
-const siteUrl = 'https://getalexandria.ai';
-const ogImage = `${siteUrl}/og.png`;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://getalexandria.ai');
+const imageURL = new URL(image, Astro.site || 'https://getalexandria.ai');
 ---
 
 <!doctype html>
@@ -17,44 +22,63 @@ const ogImage = `${siteUrl}/og.png`;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon-mark.png" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={description} />
-
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={siteUrl} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:site_name" content="Alexandria" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
-
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
     <title>{title}</title>
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={imageURL} />
+    <meta property="og:image:alt" content={imageAlt} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={imageURL} />
+    <meta property="twitter:image:alt" content={imageAlt} />
   </head>
   <body>
-    <slot />
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <slot name="nav" />
+    <div class="page-wrapper">
+      <slot />
+    </div>
   </body>
 </html>
 
 <style is:global>
   :root {
     --color-bg: #0f0f14;
-    --color-surface: #1a1a24;
-    --color-text: #e8e6e1;
-    --color-text-muted: #9a9790;
-    --color-accent: #c9a84c;
-    --color-accent-dim: rgba(201, 168, 76, 0.15);
+    --color-bg-warm: rgba(15, 15, 20, 0.95);
+    --color-bg-card: rgba(25, 25, 35, 0.95);
+    --color-paper: #0f0f14;
+    --color-paper-dark: #0a0a0f;
+    --color-ink: #e8e4dc;
+    --color-ink-light: #b8b4ac;
+    --color-cream: #e8e4dc;
+    --color-cream-muted: #8a8680;
+    --color-amber: #c9a84c;
+    --color-amber-glow: #dbb85e;
+    --color-amber-deep: #a8893e;
+    --color-red-deep: #8b3a3a;
+    --color-gold: #c9a84c;
+    --color-teal: #4a7c7c;
     --font-display: 'Cormorant Garamond', Georgia, serif;
     --font-body: 'Inter', system-ui, sans-serif;
   }
@@ -68,18 +92,273 @@ const ogImage = `${siteUrl}/og.png`;
   }
 
   html {
+    scroll-behavior: smooth;
     font-size: 18px;
   }
 
   body {
     font-family: var(--font-body);
     background-color: var(--color-bg);
-    color: var(--color-text);
+    color: var(--color-cream);
     line-height: 1.6;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  /* Subtle golden grain texture on dark */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(201, 168, 76, 0.015) 0%, transparent 1%),
+      radial-gradient(circle at 80% 70%, rgba(201, 168, 76, 0.012) 0%, transparent 1%),
+      radial-gradient(circle at 40% 80%, rgba(201, 168, 76, 0.01) 0%, transparent 1%),
+      radial-gradient(circle at 60% 20%, rgba(201, 168, 76, 0.015) 0%, transparent 1%),
+      radial-gradient(circle at 10% 60%, rgba(201, 168, 76, 0.01) 0%, transparent 1%),
+      radial-gradient(circle at 90% 40%, rgba(201, 168, 76, 0.012) 0%, transparent 1%),
+      radial-gradient(circle at 30% 10%, rgba(201, 168, 76, 0.01) 0%, transparent 1%),
+      radial-gradient(circle at 70% 90%, rgba(201, 168, 76, 0.015) 0%, transparent 1%);
+    background-size:
+      7px 7px,
+      11px 11px,
+      5px 5px,
+      9px 9px,
+      6px 6px,
+      8px 8px,
+      10px 10px,
+      4px 4px;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* Ambient glow effects — gold on dark */
+  .ambient-glow {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .glow-1 {
+    top: -200px;
+    right: -100px;
+    background: var(--color-amber);
+  }
+
+  .glow-2 {
+    bottom: 20%;
+    left: -200px;
+    background: var(--color-amber-deep);
+    opacity: 0.04;
+  }
+
+  /* Typography */
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--color-cream);
+  }
+
+  h3 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-amber);
+  }
+
+  p {
+    font-size: 1rem;
+    color: var(--color-cream-muted);
+    font-weight: 300;
+  }
+
+  /* Page wrapper for max-width constraint */
+  .page-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    overflow-x: hidden;
+  }
+
+  /* Layout utilities */
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  section {
+    padding: 3rem 0;
+    scroll-margin-top: 120px;
+  }
+
+  /* Section divider — gold wave on dark */
+  .section-divider {
+    height: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='20' viewBox='0 0 200 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,10 Q50,5 100,10 T200,10' stroke='%23c9a84c' stroke-width='1' fill='none' opacity='0.3'/%3E%3C/svg%3E");
+    background-repeat: repeat-x;
+    background-position: center;
+    opacity: 0.5;
+  }
+
+  /* Button styles */
+  .btn {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    padding: 0.9rem 2.2rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .btn-primary {
+    background: var(--color-amber);
+    color: var(--color-bg);
+    font-weight: 600;
+    box-shadow:
+      3px 3px 0 var(--color-amber-deep),
+      0 4px 15px rgba(201, 168, 76, 0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translate(-2px, -2px);
+    box-shadow:
+      5px 5px 0 var(--color-amber-deep),
+      0 6px 20px rgba(201, 168, 76, 0.4);
+  }
+
+  .btn-outline {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 3px;
+    border: 1.5px solid var(--color-cream-muted);
+    background: transparent;
+    color: var(--color-cream);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
+    gap: 0.35rem;
+    text-decoration: none;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--color-amber);
+    color: var(--color-amber);
+  }
+
+  /* Gold underline effect */
+  .gold-underline {
+    position: relative;
+    display: inline;
+  }
+
+  .gold-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--color-amber);
+    opacity: 0.6;
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes gentleFloat {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 768px) {
+    section {
+      padding: 3.5rem 0;
+    }
+
+    .container {
+      padding: 0 1.25rem;
+    }
+
+    body {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    p,
+    li,
+    td {
+      font-size: max(0.9rem, 16px);
+      line-height: 1.6;
+    }
+  }
+
+  @media (max-width: 480px) {
+    html {
+      font-size: 16px;
+    }
+
+    section {
+      padding: 2.5rem 0;
+    }
+
+    .container {
+      padding: 0 1rem;
+    }
+
+    .btn,
+    .btn-outline,
+    .btn-primary {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    a {
+      padding: 0.25rem 0;
+    }
+  }
+
+  /* Safe area insets for notched devices */
+  @supports (padding: env(safe-area-inset-left)) {
+    .container {
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+    }
   }
 </style>
