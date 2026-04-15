@@ -831,6 +831,10 @@
     padding: 1rem;
   }
 
+  .stack-card .card-image {
+    margin: -1rem -1rem 1rem;
+  }
+
   .tier {
     padding: 1.5rem;
   }
