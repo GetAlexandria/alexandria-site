@@ -774,7 +774,7 @@
   }
 
   .book-callout-image {
-    max-width: 280px;
+    max-width: 200px;
     margin: 0 auto;
   }
 
@@ -798,8 +798,29 @@
 
 @media (max-width: 480px) {
   .hero {
-    min-height: 60vh;
-    padding: 4rem 0 2rem;
+    padding: 0 0 0.75rem;
+  }
+
+  .hero-image-container {
+    padding: 0;
+    border-radius: 0;
+    background-color: var(--color-bg);
+  }
+
+  .hero-image {
+    max-height: 320px;
+    border-radius: 0;
+  }
+
+  .hero-image-fade {
+    left: 0;
+    right: 0;
+    border-radius: 0;
+  }
+
+  .hero-tagline {
+    left: 1rem;
+    right: 1rem;
   }
 
   .hero-scenario {
@@ -807,7 +828,11 @@
   }
 
   .stack-card {
-    padding: 1.5rem;
+    padding: 1rem;
+  }
+
+  .stack-card .card-image {
+    margin: -1rem -1rem 1rem;
   }
 
   .tier {
@@ -818,7 +843,31 @@
     padding: 1.5rem;
   }
 
+  .team-thesis {
+    padding: 1rem 1.25rem;
+  }
+
   .risk-item {
-    padding: 1.25rem;
+    padding: 1rem 1.25rem;
+  }
+
+  .book-callout-image {
+    max-width: 160px;
+  }
+
+  .workshop-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .email-form input[type='email'] {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .email-form button {
+    width: 100%;
+    min-height: 44px;
   }
 }
