@@ -43,6 +43,7 @@ while [[ $# -gt 0 ]]; do
 		echo "  ALEXANDRIA_BASE_URL       Override Alexandria site base URL"
 		echo "  ALEXANDRIA_DOWNLOADS_URL  Override Alexandria downloads base URL"
 		echo "  ALEXANDRIA_AX_INSTALL_DIR Override the directory that receives ax"
+		echo "  Legacy aliases: CONTEXT_LIBRARY_VERSION, CONTEXT_LIBRARY_ALEXANDRIA_URL"
 		echo ""
 		echo "Flags:"
 		echo "  --yes, -y    Skip confirmation prompt"
@@ -217,20 +218,20 @@ install_ax_binary() {
 register_plugin() {
 	local plugin_target="$1"
 	local context_label="$2"
-
-	if ! command -v claude >/dev/null 2>&1; then
-		warn "Claude Code CLI not found — skipping plugin registration."
-		warn "Register manually later with:"
-		warn "  claude plugin marketplace add $plugin_target --scope project"
-		warn "  claude plugin install alexandria@getalexandria --scope project"
-		return 0
-	fi
-
 	local scope
+
 	if [ "$context_label" = "project-local" ]; then
 		scope="project"
 	else
 		scope="user"
+	fi
+
+	if ! command -v claude >/dev/null 2>&1; then
+		warn "Claude Code CLI not found — skipping plugin registration."
+		warn "Register manually later with:"
+		warn "  claude plugin marketplace add $plugin_target --scope $scope"
+		warn "  claude plugin install alexandria@getalexandria --scope $scope"
+		return 0
 	fi
 
 	info "Registering plugin with Claude Code ($scope scope)..."
