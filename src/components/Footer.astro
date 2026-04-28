@@ -1,11 +1,18 @@
 ---
-// Footer - Attribution and external links
+// Footer - Attribution and links
 ---
 
 <footer>
   <div class="container">
+    <p class="footer-description">
+      <strong>Alexandria</strong> is a SocioTechnica project. We're building the substrate for humanist
+      AI-native organizations.
+    </p>
     <p>
       <span class="footer-links">
+        <a href="/onboarding">Become an Alexandrian</a>
+        <a href="/book">Become an Alpha Reader</a>
+        <a href="/agreement">The Agreement</a>
         <a href="https://sociotechnica.org/notebook/" target="_blank" rel="noopener noreferrer"
           >Labnotes</a
         >
@@ -14,20 +21,14 @@
           target="_blank"
           rel="noopener noreferrer"
         >
-          <svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path
-              fill="currentColor"
-              d="M12 2C6.48 2 2 6.58 2 12.26c0 4.54 2.87 8.39 6.84 9.75.5.1.68-.22.68-.48 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.07 1.53 1.07.9 1.58 2.36 1.12 2.94.85.09-.67.35-1.12.64-1.38-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.72 0 0 .84-.28 2.75 1.05.8-.23 1.66-.34 2.52-.34.86 0 1.72.12 2.52.34 1.9-1.33 2.74-1.05 2.74-1.05.55 1.42.2 2.46.1 2.72.64.72 1.02 1.63 1.02 2.75 0 3.94-2.35 4.8-4.58 5.06.36.32.69.94.69 1.9 0 1.37-.01 2.48-.01 2.81 0 .26.18.59.69.48 3.96-1.36 6.82-5.22 6.82-9.75C22 6.58 17.52 2 12 2z"
-            ></path>
-          </svg>
           GitHub
         </a>
       </span>
     </p>
     <p class="attribution">
-      A <a href="https://sociotechnica.org" target="_blank" rel="noopener noreferrer"
+      &copy; 2026 <a href="https://sociotechnica.org" target="_blank" rel="noopener noreferrer"
         >SocioTechnica</a
-      > product
+      >
     </p>
   </div>
 </footer>
@@ -45,12 +46,22 @@
     color: var(--color-cream-muted);
   }
 
+  .footer-description {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .footer-description strong {
+    color: var(--color-cream);
+    font-weight: 500;
+  }
+
   footer a {
     font-family: var(--font-display);
     color: var(--color-cream-muted);
     text-decoration: none;
-    margin: 0 1rem;
-    font-size: 1.05rem;
+    margin: 0 0.75rem;
+    font-size: 1rem;
   }
 
   footer a:hover {
@@ -60,7 +71,7 @@
   .footer-links {
     display: inline-flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
     justify-content: center;
     margin-bottom: 0.75rem;
@@ -72,11 +83,6 @@
     gap: 0.5rem;
   }
 
-  .github-icon {
-    width: 18px;
-    height: 18px;
-  }
-
   .attribution {
     margin-top: 0.5rem;
   }
@@ -84,5 +90,12 @@
   .attribution a {
     font-size: 0.85rem;
     margin: 0;
+  }
+
+  @media (max-width: 480px) {
+    .footer-links {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
   }
 </style>
