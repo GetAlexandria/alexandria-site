@@ -1,0 +1,196 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TopNav from '../components/TopNav.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="The Alexandrian Agreement — Alexandria"
+  description="Not a contract. How we work together."
+>
+  <TopNav slot="nav" />
+  <main class="container agreement-page">
+    <header class="agreement-header">
+      <h1>The Alexandrian Agreement</h1>
+      <p class="agreement-subtitle"><em>Not a contract. How we work together.</em></p>
+    </header>
+
+    <section class="agreement-section">
+      <h2>Who this is for</h2>
+      <p>
+        Software factory runners hitting the wall of being the coordination layer themselves.
+        Entrepreneurs with edge who see what an AI-native operation could be in their space and want
+        to push the substrate into shapes we haven't thought of yet. Builders, both. The work is
+        what makes Alexandria real.
+      </p>
+    </section>
+
+    <section class="agreement-section">
+      <h2>What you bring</h2>
+      <dl class="agreement-list">
+        <dt>The work.</dt>
+        <dd>
+          Your load tests the substrate. Your creativity tests its boundaries. You're a builder, not
+          a customer.
+        </dd>
+
+        <dt>Honest reaction.</dt>
+        <dd>What broke, what confused you, what you needed and didn't get. Unguarded.</dd>
+
+        <dt>Some attention.</dt>
+        <dd>Forty-five minutes every other week, plus a working channel for in-between.</dd>
+
+        <dt>Your story.</dt>
+        <dd>
+          What you tried, what worked, what didn't. We may ask to share it. We'll always ask first.
+        </dd>
+      </dl>
+    </section>
+
+    <section class="agreement-section">
+      <h2>What we bring</h2>
+      <dl class="agreement-list">
+        <dt>Direct access.</dt>
+        <dd>
+          Danvers or Jess on every call, until scale breaks it. We'll tell you before that changes.
+        </dd>
+
+        <dt>Roadmap influence.</dt>
+        <dd>Your reactions in the room when we decide what's next.</dd>
+
+        <dt>The substrate.</dt>
+        <dd>
+          Every version we ship through the alpha. Alpha pricing held until we tell you otherwise,
+          well in advance.
+        </dd>
+
+        <dt>Attribution.</dt>
+        <dd>Named publicly if you want it. Quiet if you don't. Your call, switchable anytime.</dd>
+
+        <dt>Community.</dt>
+        <dd>The other Alexandrians, when it makes sense to introduce you.</dd>
+
+        <dt>The work in public.</dt>
+        <dd>Labnotes, book chapters, GitHub. Nothing waiting on us to share it.</dd>
+      </dl>
+    </section>
+
+    <section class="agreement-section">
+      <h2>How we talk</h2>
+      <p>
+        Direct. No NDAs. We talk publicly about what we're building unless asked not to, and we
+        always ask before sharing your work. Cadence is forty-five minutes every other week, plus
+        the channel. No CRMs, no marketing automation. Two weeks of silence means we're heads down.
+        We'll ask once if it goes the other way.
+      </p>
+    </section>
+
+    <section class="agreement-section">
+      <h2>How we disagree</h2>
+      <p>
+        Either of us can leave anytime. No exit interview. If something isn't working, say it. We'd
+        rather lose a partner than fake alignment.
+      </p>
+    </section>
+
+    <section class="agreement-section">
+      <h2>What we won't do</h2>
+      <p>
+        No lock-in. No exclusivity. No taking credit for your work. No gatekeeping &mdash;
+        substrate, schema, labnotes, book, all public. No surprise pricing.
+      </p>
+    </section>
+
+    <section class="agreement-section">
+      <h2>How this ends</h2>
+      <p>
+        Three good endings: you become a customer when there's something to buy, you outgrow needing
+        us, or we ship something that doesn't fit and you move on with our blessing. It ends badly
+        only if one of us isn't honest with the other.
+      </p>
+    </section>
+
+    <p class="agreement-signoff">&mdash; Danvers and Jess, SocioTechnica, 2026</p>
+
+    <div class="agreement-cta">
+      <a href="/onboarding" class="btn btn-primary">Become an Alexandrian</a>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .agreement-page {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+    max-width: 760px;
+  }
+
+  .agreement-header {
+    margin-bottom: 3rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(232, 228, 220, 0.06);
+    padding-bottom: 2rem;
+  }
+
+  .agreement-header h1 {
+    margin-bottom: 0.5rem;
+  }
+
+  .agreement-subtitle {
+    color: var(--color-amber);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+  }
+
+  .agreement-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .agreement-section h2 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+  }
+
+  .agreement-section p {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .agreement-list {
+    margin: 0;
+  }
+
+  .agreement-list dt {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--color-amber);
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .agreement-list dt:first-child {
+    margin-top: 0;
+  }
+
+  .agreement-list dd {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--color-cream-muted);
+  }
+
+  .agreement-signoff {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(232, 228, 220, 0.06);
+    text-align: center;
+    font-style: italic;
+    color: var(--color-cream-muted);
+  }
+
+  .agreement-cta {
+    margin-top: 2.5rem;
+    text-align: center;
+  }
+</style>

@@ -1,0 +1,270 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TopNav from '../components/TopNav.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Book a Call — Alexandria"
+  description="Install Raven with a founder at your elbow. 45 minutes, live onboarding."
+>
+  <TopNav slot="nav" />
+  <main class="container support-page">
+    <h1>Install Raven together</h1>
+    <p class="page-intro">
+      <em
+        >45 minutes. One of us on the call with you. You run Raven's elicitation, we watch. You get
+        live support, we learn what's breaking on real machines.</em
+      >
+    </p>
+
+    <section class="support-section">
+      <h2>What the call is for</h2>
+      <div class="value-exchange">
+        <div class="value-side">
+          <h3>You</h3>
+          <p>
+            You get past the rough edges of a cold install. You ask the questions you'd otherwise
+            have to email about. You end the call with a foundational library in place and a sense
+            of how Raven fits into your actual workflow.
+          </p>
+        </div>
+        <div class="value-side">
+          <h3>Us</h3>
+          <p>
+            We watch how you answer Raven's elicitation questions, which is the single
+            highest-signal thing we can do at this stage. Every call teaches us something the repo
+            issues don't.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="support-section">
+      <h2>What to bring</h2>
+      <ul class="bring-list">
+        <li>
+          <strong>Your codebase</strong> (or at least access to it).
+        </li>
+        <li>
+          <strong>Any product docs you've got</strong>, however scattered. Notion, a README, a
+          Google Doc, a whiteboard photo. Raven works with what you have.
+        </li>
+        <li>
+          <strong>A working Claude subscription.</strong> Max if you're planning to ship code alongside
+          the library; Pro is fine if you're just setting up the library for now.
+        </li>
+        <li>
+          <strong>A sense of what you're trying to build.</strong> Not a pitch deck. Just enough that
+          we can calibrate the elicitation to your actual project.
+        </li>
+      </ul>
+    </section>
+
+    <section class="support-section">
+      <h2>What you'll walk away with</h2>
+      <div class="walkaway-grid">
+        <div class="walkaway-item">
+          <p>A working installation of Raven, pointed at your real codebase.</p>
+        </div>
+        <div class="walkaway-item">
+          <p>
+            The foundational tier of your library populated. Brand voice, product scope, the
+            decisions you've already made.
+          </p>
+        </div>
+        <div class="walkaway-item">
+          <p>
+            A direct line to both of us for the next 30 days. You can email or Slack when something
+            breaks or when you want to go deeper into the valuable and nice-to-have tiers.
+          </p>
+        </div>
+        <div class="walkaway-item">
+          <p>
+            Design partner status. That means free, rough edges, and a seat in the room as
+            Alexandria evolves.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="support-section book-section">
+      <h2>Book it</h2>
+
+      <div class="email-callout">
+        <p>
+          Drop us a line and we'll find some time:
+          <a href="mailto:team@sociotechnica.org">team@sociotechnica.org</a>
+        </p>
+      </div>
+
+      <div class="intake-question">
+        <p>One question we'll ask before the call:</p>
+        <blockquote>
+          <p>
+            <em
+              >In one sentence: what's the project or team situation where Alexandria would most
+              move the needle for you right now?</em
+            >
+          </p>
+        </blockquote>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .support-page {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+  }
+
+  .support-page h1 {
+    margin-bottom: 0.5rem;
+  }
+
+  .page-intro {
+    color: var(--color-cream-muted);
+    font-size: 1.05rem;
+    margin-bottom: 3rem;
+    max-width: 700px;
+  }
+
+  .support-section {
+    margin-bottom: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(232, 228, 220, 0.06);
+  }
+
+  .support-section:last-child {
+    border-bottom: none;
+  }
+
+  .support-section h2 {
+    margin-bottom: 1.25rem;
+  }
+
+  .support-section p {
+    font-size: 1rem;
+    line-height: 1.8;
+    margin-bottom: 0.75rem;
+  }
+
+  .value-exchange {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .value-side {
+    background: var(--color-bg-card);
+    border: 1px solid rgba(232, 228, 220, 0.06);
+    border-radius: 4px;
+    padding: 1.5rem;
+  }
+
+  .value-side h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .value-side p {
+    font-size: 0.95rem;
+    margin-bottom: 0;
+  }
+
+  .bring-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .bring-list li {
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(232, 228, 220, 0.06);
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--color-cream-muted);
+  }
+
+  .bring-list li:first-child {
+    border-top: 1px solid rgba(232, 228, 220, 0.06);
+  }
+
+  .bring-list strong {
+    color: var(--color-cream);
+    font-weight: 500;
+  }
+
+  .walkaway-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .walkaway-item {
+    background: rgba(201, 168, 76, 0.04);
+    border: 1px solid rgba(201, 168, 76, 0.12);
+    border-radius: 4px;
+    padding: 1.25rem;
+  }
+
+  .walkaway-item p {
+    font-size: 0.95rem;
+    margin-bottom: 0;
+  }
+
+  .email-callout {
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.2);
+    border-radius: 4px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .email-callout p {
+    color: var(--color-cream);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    margin: 0;
+  }
+
+  .email-callout a {
+    color: var(--color-amber);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .email-callout a:hover {
+    color: var(--color-amber-glow);
+    text-decoration: underline;
+  }
+
+  .intake-question {
+    margin-top: 1.5rem;
+  }
+
+  .intake-question blockquote {
+    margin-top: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    border-left: 2px solid var(--color-amber);
+    background: rgba(201, 168, 76, 0.04);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .intake-question blockquote p {
+    color: var(--color-cream);
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .value-exchange {
+      grid-template-columns: 1fr;
+    }
+
+    .walkaway-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
