@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Alexandria Next - Remote Installer
 #
-# Installs the Alexandria Next plugin payload plus the public `ax2` binary.
+# Installs the Alexandria Next plugin payload, public `ax2` binary, and
+# bundled Fabro orchestration binary.
 #
 # Usage:
 #   curl -fsSL https://getalexandria.ai/install-next.sh | bash
@@ -11,7 +12,7 @@
 #   ALEXANDRIA_NEXT_VERSION           Pin a specific version (default: latest)
 #   ALEXANDRIA_NEXT_BASE_URL          Override site base URL
 #   ALEXANDRIA_NEXT_DOWNLOADS_URL     Override downloads base URL
-#   ALEXANDRIA_AX2_INSTALL_DIR        Override the directory that receives ax2
+#   ALEXANDRIA_AX2_INSTALL_DIR        Override the directory that receives ax2/fabro
 #   ALEXANDRIA_DOWNLOADS_URL          Fallback downloads base URL
 
 set -euo pipefail
@@ -52,7 +53,7 @@ while [[ $# -gt 0 ]]; do
 		echo "  ALEXANDRIA_NEXT_VERSION        Pin a specific version (default: latest)"
 		echo "  ALEXANDRIA_NEXT_BASE_URL       Override Alexandria site base URL"
 		echo "  ALEXANDRIA_NEXT_DOWNLOADS_URL  Override Alexandria downloads base URL"
-		echo "  ALEXANDRIA_AX2_INSTALL_DIR     Override the directory that receives ax2"
+		echo "  ALEXANDRIA_AX2_INSTALL_DIR     Override the directory that receives ax2/fabro"
 		echo "  ALEXANDRIA_DOWNLOADS_URL       Fallback Alexandria downloads base URL"
 		echo ""
 		echo "Flags:"
@@ -217,7 +218,39 @@ install_ax2_binary() {
 
 	mkdir -p "$ax2_install_dir"
 	install -m 0755 "$extract_dir/ax2" "$ax2_target"
+	if [ -d "$extract_dir/dist/viewer-next" ]; then
+		rm -rf "$ax2_install_dir/dist/viewer-next"
+		mkdir -p "$ax2_install_dir/dist"
+		cp -R "$extract_dir/dist/viewer-next" "$ax2_install_dir/dist/viewer-next"
+	fi
 	success "Installed ax2 to: $ax2_target"
+}
+
+install_fabro_binary() {
+	local version="$1"
+	local ax2_install_dir="$2"
+	local platform="$3"
+	local archive_name="fabro-v${version}-${platform}.tar.gz"
+	local archive_url="$ALEXANDRIA_NEXT_DOWNLOADS_URL/$archive_name"
+	local archive_path="$STAGING_DIR/$archive_name"
+	local extract_dir="$STAGING_DIR/fabro-$platform"
+	local fabro_target="$ax2_install_dir/fabro"
+
+	info "Downloading Fabro binary..."
+	download_file "$archive_url" "$archive_path"
+
+	rm -rf "$extract_dir"
+	mkdir -p "$extract_dir"
+	tar -xzf "$archive_path" -C "$extract_dir"
+
+	if [ ! -f "$extract_dir/fabro" ]; then
+		error "Extraction failed - expected Fabro binary in $archive_name"
+		exit 1
+	fi
+
+	mkdir -p "$ax2_install_dir"
+	install -m 0755 "$extract_dir/fabro" "$fabro_target"
+	success "Installed Fabro to: $fabro_target"
 }
 
 register_plugin() {
@@ -269,6 +302,7 @@ fi
 PLUGIN_TARGET="$(detect_plugin_target)"
 AX2_INSTALL_DIR="$(resolve_ax2_install_dir)"
 AX2_TARGET="$AX2_INSTALL_DIR/ax2"
+FABRO_TARGET="$AX2_INSTALL_DIR/fabro"
 CONTEXT_LABEL="$(detect_context_label)"
 PLATFORM="$(detect_platform)"
 STAGING_DIR="$(mktemp -d "${TMPDIR:-/tmp}/alexandria-next-install.XXXXXX")"
@@ -277,6 +311,7 @@ echo "Install plan:"
 echo "  Context:     $CONTEXT_LABEL"
 echo "  Plugin:      $PLUGIN_TARGET"
 echo "  ax2 binary:  $AX2_TARGET"
+echo "  Fabro:       $FABRO_TARGET"
 echo "  Version:     $VERSION"
 echo "  Platform:    $PLATFORM"
 echo ""
@@ -301,6 +336,7 @@ fi
 
 echo ""
 install_plugin_payload "$VERSION" "$PLUGIN_TARGET"
+install_fabro_binary "$VERSION" "$AX2_INSTALL_DIR" "$PLATFORM"
 install_ax2_binary "$VERSION" "$AX2_INSTALL_DIR" "$PLATFORM"
 PLUGIN_REGISTERED=false
 if register_plugin "$PLUGIN_TARGET" "$CONTEXT_LABEL"; then
