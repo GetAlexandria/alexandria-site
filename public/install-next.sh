@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Alexandria Next - Remote Installer
 #
-# Installs the Alexandria Next plugin payload, public `ax2` binary, and
+# Installs the Alexandria Next Claude plugin, public `ax2` binary, and
 # bundled Fabro orchestration binary.
 #
 # Usage:
 #   curl -fsSL https://getalexandria.ai/install-next.sh | bash
 #   curl -fsSL https://getalexandria.ai/install-next.sh | bash -s -- --yes
+#   curl -fsSL https://getalexandria.ai/install-next.sh | bash -s -- --yes --init
 #
 # Environment:
 #   ALEXANDRIA_NEXT_VERSION           Pin a specific version (default: latest)
@@ -36,6 +37,7 @@ warn() { echo "  ! $1"; }
 error() { echo "  x $1" >&2; }
 
 ASSUME_YES=false
+RUN_INIT=false
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -43,11 +45,16 @@ while [[ $# -gt 0 ]]; do
 		ASSUME_YES=true
 		shift
 		;;
+	--init)
+		RUN_INIT=true
+		shift
+		;;
 	--help | -h)
 		echo "Alexandria Next Installer"
 		echo ""
 		echo "Usage: curl -fsSL https://getalexandria.ai/install-next.sh | bash"
 		echo "       curl -fsSL https://getalexandria.ai/install-next.sh | bash -s -- --yes"
+		echo "       curl -fsSL https://getalexandria.ai/install-next.sh | bash -s -- --yes --init"
 		echo ""
 		echo "Environment:"
 		echo "  ALEXANDRIA_NEXT_VERSION        Pin a specific version (default: latest)"
@@ -58,6 +65,7 @@ while [[ $# -gt 0 ]]; do
 		echo ""
 		echo "Flags:"
 		echo "  --yes, -y    Skip confirmation prompt"
+		echo "  --init       Initialize the current project after installation"
 		echo "  --help, -h   Show this help"
 		exit 0
 		;;
@@ -183,15 +191,15 @@ install_plugin_payload() {
 	local archive_path="$STAGING_DIR/$archive_name"
 	local extracted_root="alexandria-next-plugin-v${version}"
 
-	info "Downloading Alexandria Next plugin payload..."
+	info "Downloading Alexandria Next Claude plugin..."
 	download_file "$archive_url" "$archive_path"
-	info "Extracting Alexandria Next plugin payload..."
+	info "Extracting Alexandria Next Claude plugin..."
 	extract_single_root_tarball "$archive_path" "$STAGING_DIR" "$extracted_root"
 
 	rm -rf "$plugin_target"
 	mkdir -p "$(dirname "$plugin_target")"
 	mv "$STAGING_DIR/$extracted_root" "$plugin_target"
-	success "Installed plugin payload to: $plugin_target"
+	success "Installed Alexandria Next Claude plugin to: $plugin_target"
 }
 
 install_ax2_binary() {
@@ -253,6 +261,21 @@ install_fabro_binary() {
 	success "Installed Fabro to: $fabro_target"
 }
 
+initialize_ax2() {
+	local ax2_target="$1"
+
+	if [ "$RUN_INIT" = true ]; then
+		info "Initializing Alexandria Next in the current project..."
+		"$ax2_target" init all
+		success "Initialized Alexandria Next project and orchestration support"
+		return
+	fi
+
+	info "Installing Codex ACP orchestration support..."
+	"$ax2_target" init orchestration
+	success "Installed Codex ACP orchestration support"
+}
+
 register_plugin() {
 	local plugin_target="$1"
 	local context_label="$2"
@@ -309,9 +332,14 @@ STAGING_DIR="$(mktemp -d "${TMPDIR:-/tmp}/alexandria-next-install.XXXXXX")"
 
 echo "Install plan:"
 echo "  Context:     $CONTEXT_LABEL"
-echo "  Plugin:      $PLUGIN_TARGET"
+echo "  Claude plugin: $PLUGIN_TARGET"
 echo "  ax2 binary:  $AX2_TARGET"
 echo "  Fabro:       $FABRO_TARGET"
+if [ "$RUN_INIT" = true ]; then
+	echo "  Initialize:  current project"
+else
+	echo "  Initialize:  no project files (Codex ACP support only)"
+fi
 echo "  Version:     $VERSION"
 echo "  Platform:    $PLATFORM"
 echo ""
@@ -338,6 +366,7 @@ echo ""
 install_plugin_payload "$VERSION" "$PLUGIN_TARGET"
 install_fabro_binary "$VERSION" "$AX2_INSTALL_DIR" "$PLATFORM"
 install_ax2_binary "$VERSION" "$AX2_INSTALL_DIR" "$PLATFORM"
+initialize_ax2 "$AX2_TARGET"
 PLUGIN_REGISTERED=false
 if register_plugin "$PLUGIN_TARGET" "$CONTEXT_LABEL"; then
 	PLUGIN_REGISTERED=true
@@ -356,9 +385,9 @@ fi
 
 if [ "$CONTEXT_LABEL" = "project-local" ]; then
 	if [ "$PLUGIN_REGISTERED" = true ]; then
-		echo "The plugin is installed and registered for this project."
+		echo "The Alexandria Next Claude plugin is installed and registered for this project."
 	else
-		echo "The plugin is installed for this project but still needs Claude Code registration."
+		echo "The Alexandria Next Claude plugin is installed for this project but still needs Claude Code registration."
 	fi
 	echo ""
 	echo "Tip: add .claude/plugins/alexandria-next/ to your .gitignore:"
@@ -367,13 +396,17 @@ if [ "$CONTEXT_LABEL" = "project-local" ]; then
 	echo ""
 else
 	if [ "$PLUGIN_REGISTERED" = true ]; then
-		echo "The plugin is globally installed and registered."
+		echo "The Alexandria Next Claude plugin is globally installed and registered."
 	else
-		echo "The plugin is globally installed but still needs Claude Code registration."
+		echo "The Alexandria Next Claude plugin is globally installed but still needs Claude Code registration."
 	fi
 	echo ""
 fi
 
-echo "Then initialize Alexandria Next:"
-echo "  Run ax2 init"
+if [ "$RUN_INIT" = true ]; then
+	echo "Alexandria Next is initialized in this project."
+else
+	echo "Codex ACP support is installed. To initialize this project later:"
+	echo "  Run ax2 init"
+fi
 echo "  Use the ax-next-start skill to begin"
