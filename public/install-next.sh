@@ -14,6 +14,7 @@
 #   ALEXANDRIA_NEXT_BASE_URL          Override site base URL
 #   ALEXANDRIA_NEXT_DOWNLOADS_URL     Override downloads base URL
 #   ALEXANDRIA_AX2_INSTALL_DIR        Override the directory that receives ax2/fabro
+#   ALEXANDRIA_NEXT_ACP_PROVIDER      ACP provider for Fabro plays: codex or claude
 #   ALEXANDRIA_DOWNLOADS_URL          Fallback downloads base URL
 
 set -euo pipefail
@@ -38,6 +39,18 @@ error() { echo "  x $1" >&2; }
 
 ASSUME_YES=false
 RUN_INIT=false
+ACP_PROVIDER="${ALEXANDRIA_NEXT_ACP_PROVIDER:-codex}"
+
+validate_acp_provider() {
+	case "$1" in
+	codex | claude) ;;
+	*)
+		error "Unsupported ACP provider: $1"
+		error "Supported providers: codex, claude"
+		exit 1
+		;;
+	esac
+}
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -49,24 +62,44 @@ while [[ $# -gt 0 ]]; do
 		RUN_INIT=true
 		shift
 		;;
+	--acp-provider)
+		if [ $# -lt 2 ] || [[ "$2" == -* ]]; then
+			error "Missing value for --acp-provider"
+			exit 1
+		fi
+		ACP_PROVIDER="$2"
+		validate_acp_provider "$ACP_PROVIDER"
+		shift 2
+		;;
+	--acp-provider=*)
+		ACP_PROVIDER="${1#--acp-provider=}"
+		if [ -z "$ACP_PROVIDER" ]; then
+			error "Missing value for --acp-provider"
+			exit 1
+		fi
+		validate_acp_provider "$ACP_PROVIDER"
+		shift
+		;;
 	--help | -h)
 		echo "Alexandria Next Installer"
 		echo ""
 		echo "Usage: curl -fsSL https://getalexandria.ai/install-next.sh | bash"
 		echo "       curl -fsSL https://getalexandria.ai/install-next.sh | bash -s -- --yes"
-		echo "       curl -fsSL https://getalexandria.ai/install-next.sh | bash -s -- --yes --init"
+		echo "       curl -fsSL https://getalexandria.ai/install-next.sh | bash -s -- --yes --init --acp-provider claude"
 		echo ""
 		echo "Environment:"
 		echo "  ALEXANDRIA_NEXT_VERSION        Pin a specific version (default: latest)"
 		echo "  ALEXANDRIA_NEXT_BASE_URL       Override Alexandria site base URL"
 		echo "  ALEXANDRIA_NEXT_DOWNLOADS_URL  Override Alexandria downloads base URL"
 		echo "  ALEXANDRIA_AX2_INSTALL_DIR     Override the directory that receives ax2/fabro"
+		echo "  ALEXANDRIA_NEXT_ACP_PROVIDER   ACP provider for Fabro plays: codex or claude"
 		echo "  ALEXANDRIA_DOWNLOADS_URL       Fallback Alexandria downloads base URL"
 		echo ""
 		echo "Flags:"
-		echo "  --yes, -y    Skip confirmation prompt"
-		echo "  --init       Initialize the current project after installation"
-		echo "  --help, -h   Show this help"
+		echo "  --yes, -y                 Skip confirmation prompt"
+		echo "  --init                    Initialize the current project after installation"
+		echo "  --acp-provider <provider> ACP provider for Fabro plays: codex or claude"
+		echo "  --help, -h                Show this help"
 		exit 0
 		;;
 	*)
@@ -76,6 +109,8 @@ while [[ $# -gt 0 ]]; do
 		;;
 	esac
 done
+
+validate_acp_provider "$ACP_PROVIDER"
 
 require_curl() {
 	if ! command -v curl >/dev/null 2>&1; then
@@ -266,14 +301,14 @@ initialize_ax2() {
 
 	if [ "$RUN_INIT" = true ]; then
 		info "Initializing Alexandria Next in the current project..."
-		"$ax2_target" init all
+		"$ax2_target" init all --acp-provider "$ACP_PROVIDER"
 		success "Initialized Alexandria Next project and orchestration support"
 		return
 	fi
 
-	info "Installing Codex ACP orchestration support..."
-	"$ax2_target" init orchestration
-	success "Installed Codex ACP orchestration support"
+	info "Installing $ACP_PROVIDER ACP orchestration support..."
+	"$ax2_target" init orchestration --acp-provider "$ACP_PROVIDER"
+	success "Installed $ACP_PROVIDER ACP orchestration support"
 }
 
 register_plugin() {
@@ -335,10 +370,11 @@ echo "  Context:     $CONTEXT_LABEL"
 echo "  Claude plugin: $PLUGIN_TARGET"
 echo "  ax2 binary:  $AX2_TARGET"
 echo "  Fabro:       $FABRO_TARGET"
+echo "  ACP provider: $ACP_PROVIDER"
 if [ "$RUN_INIT" = true ]; then
 	echo "  Initialize:  current project"
 else
-	echo "  Initialize:  no project files (Codex ACP support only)"
+	echo "  Initialize:  no project files ($ACP_PROVIDER ACP support only)"
 fi
 echo "  Version:     $VERSION"
 echo "  Platform:    $PLATFORM"
@@ -406,7 +442,7 @@ fi
 if [ "$RUN_INIT" = true ]; then
 	echo "Alexandria Next is initialized in this project."
 else
-	echo "Codex ACP support is installed. To initialize this project later:"
-	echo "  Run ax2 init"
+	echo "$ACP_PROVIDER ACP support is installed. To initialize this project later:"
+	echo "  Run ax2 init --acp-provider $ACP_PROVIDER"
 fi
 echo "  Use the ax-next-start skill to begin"
