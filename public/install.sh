@@ -13,10 +13,17 @@
 #   ALEXANDRIA_VERSION         Pin a specific version (default: latest)
 #   ALEXANDRIA_BASE_URL        Override site base URL
 #   ALEXANDRIA_DOWNLOADS_URL   Override downloads base URL
+#   ALEXANDRIA_DOWNLOAD_CACHE_BUSTER
+#                              Override artifact download cache-busting token
 #   ALEXANDRIA_AX_INSTALL_DIR  Override the directory that receives ax/fabro
 #   ALEXANDRIA_ACP_PROVIDER    ACP provider for Fabro plays: codex or claude
 
 set -euo pipefail
+
+ALEXANDRIA_INSTALLER_REVISION="${ALEXANDRIA_INSTALLER_REVISION:-}"
+if [ -z "$ALEXANDRIA_INSTALLER_REVISION" ]; then
+	ALEXANDRIA_INSTALLER_REVISION="7fe93ba"
+fi
 
 ALEXANDRIA_BASE_URL_INPUT="${ALEXANDRIA_BASE_URL:-}"
 ALEXANDRIA_BASE_URL="${ALEXANDRIA_BASE_URL_INPUT:-https://getalexandria.ai}"
@@ -88,6 +95,8 @@ while [[ $# -gt 0 ]]; do
 		echo "  ALEXANDRIA_VERSION        Pin a specific version (default: latest)"
 		echo "  ALEXANDRIA_BASE_URL       Override Alexandria site base URL"
 		echo "  ALEXANDRIA_DOWNLOADS_URL  Override Alexandria downloads base URL"
+		echo "  ALEXANDRIA_DOWNLOAD_CACHE_BUSTER"
+		echo "                            Override artifact download cache-busting token"
 		echo "  ALEXANDRIA_AX_INSTALL_DIR Override the directory that receives ax/fabro"
 		echo "  ALEXANDRIA_ACP_PROVIDER   ACP provider for Fabro plays: codex or claude"
 		echo ""
@@ -202,6 +211,17 @@ download_file() {
 	curl -fsSL "$url" -o "$output"
 }
 
+artifact_url() {
+	local archive_name="$1"
+	local cache_buster="${ALEXANDRIA_DOWNLOAD_CACHE_BUSTER:-$ALEXANDRIA_INSTALLER_REVISION}"
+
+	if [ -z "$cache_buster" ]; then
+		cache_buster="$VERSION"
+	fi
+
+	printf '%s/%s?alexandria-cache=%s' "$ALEXANDRIA_DOWNLOADS_URL" "$archive_name" "$cache_buster"
+}
+
 extract_single_root_tarball() {
 	local archive="$1"
 	local target_dir="$2"
@@ -218,10 +238,11 @@ install_plugin_payload() {
 	local version="$1"
 	local plugin_target="$2"
 	local archive_name="alexandria-plugin-v${version}.tar.gz"
-	local archive_url="$ALEXANDRIA_DOWNLOADS_URL/$archive_name"
+	local archive_url
 	local archive_path="$STAGING_DIR/$archive_name"
 	local extracted_root="alexandria-plugin-v${version}"
 
+	archive_url="$(artifact_url "$archive_name")"
 	info "Downloading Alexandria Claude plugin..."
 	download_file "$archive_url" "$archive_path"
 	info "Extracting Alexandria Claude plugin..."
@@ -238,11 +259,12 @@ install_ax_binary() {
 	local ax_install_dir="$2"
 	local platform="$3"
 	local archive_name="ax-v${version}-${platform}.tar.gz"
-	local archive_url="$ALEXANDRIA_DOWNLOADS_URL/$archive_name"
+	local archive_url
 	local archive_path="$STAGING_DIR/$archive_name"
 	local extract_dir="$STAGING_DIR/ax-$platform"
 	local ax_target="$ax_install_dir/ax"
 
+	archive_url="$(artifact_url "$archive_name")"
 	info "Downloading ax binary..."
 	download_file "$archive_url" "$archive_path"
 
@@ -270,11 +292,12 @@ install_fabro_binary() {
 	local ax_install_dir="$2"
 	local platform="$3"
 	local archive_name="fabro-v${version}-${platform}.tar.gz"
-	local archive_url="$ALEXANDRIA_DOWNLOADS_URL/$archive_name"
+	local archive_url
 	local archive_path="$STAGING_DIR/$archive_name"
 	local extract_dir="$STAGING_DIR/fabro-$platform"
 	local fabro_target="$ax_install_dir/fabro"
 
+	archive_url="$(artifact_url "$archive_name")"
 	info "Downloading Fabro binary..."
 	download_file "$archive_url" "$archive_path"
 
