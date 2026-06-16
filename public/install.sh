@@ -1,22 +1,24 @@
 #!/usr/bin/env bash
-# Alexandria — Remote Installer
+# Alexandria - Remote Installer
 #
-# Installs the Alexandria plugin payload plus the public `ax` binary.
+# Installs the Alexandria Claude plugin, public `ax` binary, and
+# bundled Fabro orchestration binary.
 #
 # Usage:
 #   curl -fsSL https://getalexandria.ai/install.sh | bash
 #   curl -fsSL https://getalexandria.ai/install.sh | bash -s -- --yes
+#   curl -fsSL https://getalexandria.ai/install.sh | bash -s -- --yes --init
 #
 # Environment:
-#   ALEXANDRIA_VERSION           Pin a specific version (default: latest)
-#   ALEXANDRIA_BASE_URL          Override site base URL
-#   ALEXANDRIA_DOWNLOADS_URL     Override downloads base URL
-#   ALEXANDRIA_AX_INSTALL_DIR    Override the directory that receives the ax binary
-#   Legacy aliases supported: CONTEXT_LIBRARY_VERSION, CONTEXT_LIBRARY_ALEXANDRIA_URL
+#   ALEXANDRIA_VERSION         Pin a specific version (default: latest)
+#   ALEXANDRIA_BASE_URL        Override site base URL
+#   ALEXANDRIA_DOWNLOADS_URL   Override downloads base URL
+#   ALEXANDRIA_AX_INSTALL_DIR  Override the directory that receives ax/fabro
+#   ALEXANDRIA_ACP_PROVIDER    ACP provider for Fabro plays: codex or claude
 
 set -euo pipefail
 
-ALEXANDRIA_BASE_URL_INPUT="${ALEXANDRIA_BASE_URL:-${CONTEXT_LIBRARY_ALEXANDRIA_URL:-}}"
+ALEXANDRIA_BASE_URL_INPUT="${ALEXANDRIA_BASE_URL:-}"
 ALEXANDRIA_BASE_URL="${ALEXANDRIA_BASE_URL_INPUT:-https://getalexandria.ai}"
 
 if [ -n "${ALEXANDRIA_DOWNLOADS_URL:-}" ]; then
@@ -33,6 +35,19 @@ warn() { echo "  ! $1"; }
 error() { echo "  x $1" >&2; }
 
 ASSUME_YES=false
+RUN_INIT=false
+ACP_PROVIDER="${ALEXANDRIA_ACP_PROVIDER:-codex}"
+
+validate_acp_provider() {
+	case "$1" in
+	codex | claude) ;;
+	*)
+		error "Unsupported ACP provider: $1"
+		error "Supported providers: codex, claude"
+		exit 1
+		;;
+	esac
+}
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -40,22 +55,47 @@ while [[ $# -gt 0 ]]; do
 		ASSUME_YES=true
 		shift
 		;;
+	--init)
+		RUN_INIT=true
+		shift
+		;;
+	--acp-provider)
+		if [ $# -lt 2 ] || [[ "$2" == -* ]]; then
+			error "Missing value for --acp-provider"
+			exit 1
+		fi
+		ACP_PROVIDER="$2"
+		validate_acp_provider "$ACP_PROVIDER"
+		shift 2
+		;;
+	--acp-provider=*)
+		ACP_PROVIDER="${1#--acp-provider=}"
+		if [ -z "$ACP_PROVIDER" ]; then
+			error "Missing value for --acp-provider"
+			exit 1
+		fi
+		validate_acp_provider "$ACP_PROVIDER"
+		shift
+		;;
 	--help | -h)
 		echo "Alexandria Installer"
 		echo ""
 		echo "Usage: curl -fsSL https://getalexandria.ai/install.sh | bash"
 		echo "       curl -fsSL https://getalexandria.ai/install.sh | bash -s -- --yes"
+		echo "       curl -fsSL https://getalexandria.ai/install.sh | bash -s -- --yes --init --acp-provider claude"
 		echo ""
 		echo "Environment:"
 		echo "  ALEXANDRIA_VERSION        Pin a specific version (default: latest)"
 		echo "  ALEXANDRIA_BASE_URL       Override Alexandria site base URL"
 		echo "  ALEXANDRIA_DOWNLOADS_URL  Override Alexandria downloads base URL"
-		echo "  ALEXANDRIA_AX_INSTALL_DIR Override the directory that receives ax"
-		echo "  Legacy aliases: CONTEXT_LIBRARY_VERSION, CONTEXT_LIBRARY_ALEXANDRIA_URL"
+		echo "  ALEXANDRIA_AX_INSTALL_DIR Override the directory that receives ax/fabro"
+		echo "  ALEXANDRIA_ACP_PROVIDER   ACP provider for Fabro plays: codex or claude"
 		echo ""
 		echo "Flags:"
-		echo "  --yes, -y    Skip confirmation prompt"
-		echo "  --help, -h   Show this help"
+		echo "  --yes, -y                 Skip confirmation prompt"
+		echo "  --init                    Initialize the current project after installation"
+		echo "  --acp-provider <provider> ACP provider for Fabro plays: codex or claude"
+		echo "  --help, -h                Show this help"
 		exit 0
 		;;
 	*)
@@ -65,6 +105,8 @@ while [[ $# -gt 0 ]]; do
 		;;
 	esac
 done
+
+validate_acp_provider "$ACP_PROVIDER"
 
 require_curl() {
 	if ! command -v curl >/dev/null 2>&1; then
@@ -76,11 +118,6 @@ require_curl() {
 resolve_version() {
 	if [ -n "${ALEXANDRIA_VERSION:-}" ]; then
 		printf '%s' "$ALEXANDRIA_VERSION"
-		return
-	fi
-
-	if [ -n "${CONTEXT_LIBRARY_VERSION:-}" ]; then
-		printf '%s' "$CONTEXT_LIBRARY_VERSION"
 		return
 	fi
 
@@ -172,7 +209,7 @@ extract_single_root_tarball() {
 
 	tar -xzf "$archive" -C "$target_dir"
 	if [ ! -d "$target_dir/$expected_root" ]; then
-		error "Extraction failed — expected directory not found: $expected_root"
+		error "Extraction failed - expected directory not found: $expected_root"
 		exit 1
 	fi
 }
@@ -185,15 +222,15 @@ install_plugin_payload() {
 	local archive_path="$STAGING_DIR/$archive_name"
 	local extracted_root="alexandria-plugin-v${version}"
 
-	info "Downloading public plugin payload..."
+	info "Downloading Alexandria Claude plugin..."
 	download_file "$archive_url" "$archive_path"
-	info "Extracting public plugin payload..."
+	info "Extracting Alexandria Claude plugin..."
 	extract_single_root_tarball "$archive_path" "$STAGING_DIR" "$extracted_root"
 
 	rm -rf "$plugin_target"
 	mkdir -p "$(dirname "$plugin_target")"
 	mv "$STAGING_DIR/$extracted_root" "$plugin_target"
-	success "Installed plugin payload to: $plugin_target"
+	success "Installed Alexandria Claude plugin to: $plugin_target"
 }
 
 install_ax_binary() {
@@ -214,13 +251,60 @@ install_ax_binary() {
 	tar -xzf "$archive_path" -C "$extract_dir"
 
 	if [ ! -f "$extract_dir/ax" ]; then
-		error "Extraction failed — expected ax binary in $archive_name"
+		error "Extraction failed - expected ax binary in $archive_name"
 		exit 1
 	fi
 
 	mkdir -p "$ax_install_dir"
 	install -m 0755 "$extract_dir/ax" "$ax_target"
+	if [ -d "$extract_dir/dist/viewer" ]; then
+		rm -rf "$ax_install_dir/dist/viewer"
+		mkdir -p "$ax_install_dir/dist"
+		cp -R "$extract_dir/dist/viewer" "$ax_install_dir/dist/viewer"
+	fi
 	success "Installed ax to: $ax_target"
+}
+
+install_fabro_binary() {
+	local version="$1"
+	local ax_install_dir="$2"
+	local platform="$3"
+	local archive_name="fabro-v${version}-${platform}.tar.gz"
+	local archive_url="$ALEXANDRIA_DOWNLOADS_URL/$archive_name"
+	local archive_path="$STAGING_DIR/$archive_name"
+	local extract_dir="$STAGING_DIR/fabro-$platform"
+	local fabro_target="$ax_install_dir/fabro"
+
+	info "Downloading Fabro binary..."
+	download_file "$archive_url" "$archive_path"
+
+	rm -rf "$extract_dir"
+	mkdir -p "$extract_dir"
+	tar -xzf "$archive_path" -C "$extract_dir"
+
+	if [ ! -f "$extract_dir/fabro" ]; then
+		error "Extraction failed - expected Fabro binary in $archive_name"
+		exit 1
+	fi
+
+	mkdir -p "$ax_install_dir"
+	install -m 0755 "$extract_dir/fabro" "$fabro_target"
+	success "Installed Fabro to: $fabro_target"
+}
+
+initialize_ax() {
+	local ax_target="$1"
+
+	if [ "$RUN_INIT" = true ]; then
+		info "Initializing Alexandria in the current project..."
+		"$ax_target" init all --acp-provider "$ACP_PROVIDER"
+		success "Initialized Alexandria project and orchestration support"
+		return
+	fi
+
+	info "Installing $ACP_PROVIDER ACP orchestration support..."
+	"$ax_target" init orchestration --acp-provider "$ACP_PROVIDER"
+	success "Installed $ACP_PROVIDER ACP orchestration support"
 }
 
 register_plugin() {
@@ -235,32 +319,32 @@ register_plugin() {
 	fi
 
 	if ! command -v claude >/dev/null 2>&1; then
-		warn "Claude Code CLI not found — skipping plugin registration."
+		warn "Claude Code CLI not found - skipping plugin registration."
 		warn "Register manually later with:"
 		warn "  claude plugin marketplace add $plugin_target --scope $scope"
-		warn "  claude plugin install alexandria@getalexandria --scope $scope"
-		return 0
+		warn "  claude plugin install alexandria@alexandria --scope $scope"
+		return 1
 	fi
 
 	info "Registering plugin with Claude Code ($scope scope)..."
 
 	if ! claude plugin marketplace add "$plugin_target" --scope "$scope" 2>/dev/null; then
-		warn "Marketplace registration failed — register manually:"
+		warn "Marketplace registration failed - register manually:"
 		warn "  claude plugin marketplace add $plugin_target --scope $scope"
-		warn "  claude plugin install alexandria@getalexandria --scope $scope"
-		return 0
+		warn "  claude plugin install alexandria@alexandria --scope $scope"
+		return 1
 	fi
 
-	if ! claude plugin install "alexandria@getalexandria" --scope "$scope" 2>/dev/null; then
-		warn "Plugin install failed — install manually:"
-		warn "  claude plugin install alexandria@getalexandria --scope $scope"
-		return 0
+	if ! claude plugin install "alexandria@alexandria" --scope "$scope" 2>/dev/null; then
+		warn "Plugin install failed - install manually:"
+		warn "  claude plugin install alexandria@alexandria --scope $scope"
+		return 1
 	fi
 
 	success "Plugin registered with Claude Code ($scope scope)"
 }
 
-echo "Alexandria — Installer"
+echo "Alexandria - Installer"
 echo ""
 
 VERSION="$(resolve_version)"
@@ -272,14 +356,22 @@ fi
 PLUGIN_TARGET="$(detect_plugin_target)"
 AX_INSTALL_DIR="$(resolve_ax_install_dir)"
 AX_TARGET="$AX_INSTALL_DIR/ax"
+FABRO_TARGET="$AX_INSTALL_DIR/fabro"
 CONTEXT_LABEL="$(detect_context_label)"
 PLATFORM="$(detect_platform)"
 STAGING_DIR="$(mktemp -d "${TMPDIR:-/tmp}/alexandria-install.XXXXXX")"
 
 echo "Install plan:"
 echo "  Context:     $CONTEXT_LABEL"
-echo "  Plugin:      $PLUGIN_TARGET"
-echo "  ax binary:   $AX_TARGET"
+echo "  Claude plugin: $PLUGIN_TARGET"
+echo "  ax binary:  $AX_TARGET"
+echo "  Fabro:       $FABRO_TARGET"
+echo "  ACP provider: $ACP_PROVIDER"
+if [ "$RUN_INIT" = true ]; then
+	echo "  Initialize:  current project"
+else
+	echo "  Initialize:  no project files ($ACP_PROVIDER ACP support only)"
+fi
 echo "  Version:     $VERSION"
 echo "  Platform:    $PLATFORM"
 echo ""
@@ -304,8 +396,13 @@ fi
 
 echo ""
 install_plugin_payload "$VERSION" "$PLUGIN_TARGET"
+install_fabro_binary "$VERSION" "$AX_INSTALL_DIR" "$PLATFORM"
 install_ax_binary "$VERSION" "$AX_INSTALL_DIR" "$PLATFORM"
-register_plugin "$PLUGIN_TARGET" "$CONTEXT_LABEL" || true
+initialize_ax "$AX_TARGET"
+PLUGIN_REGISTERED=false
+if register_plugin "$PLUGIN_TARGET" "$CONTEXT_LABEL"; then
+	PLUGIN_REGISTERED=true
+fi
 
 echo ""
 echo "Installation complete! (v$VERSION)"
@@ -319,17 +416,29 @@ if [[ ":$PATH:" != *":$AX_INSTALL_DIR:"* ]]; then
 fi
 
 if [ "$CONTEXT_LABEL" = "project-local" ]; then
-	echo "The plugin is installed and registered for this project."
+	if [ "$PLUGIN_REGISTERED" = true ]; then
+		echo "The Alexandria Claude plugin is installed and registered for this project."
+	else
+		echo "The Alexandria Claude plugin is installed for this project but still needs Claude Code registration."
+	fi
 	echo ""
 	echo "Tip: add .claude/plugins/alexandria/ to your .gitignore:"
 	echo ""
 	echo "  echo '.claude/plugins/alexandria/' >> .gitignore"
 	echo ""
 else
-	echo "The plugin is globally installed."
+	if [ "$PLUGIN_REGISTERED" = true ]; then
+		echo "The Alexandria Claude plugin is globally installed and registered."
+	else
+		echo "The Alexandria Claude plugin is globally installed but still needs Claude Code registration."
+	fi
 	echo ""
 fi
 
-echo "Then configure your library:"
-echo "  Run /library to configure Alexandria for this project"
-echo "  Run ax --help to explore the public CLI"
+if [ "$RUN_INIT" = true ]; then
+	echo "Alexandria is initialized in this project."
+else
+	echo "$ACP_PROVIDER ACP support is installed. To initialize this project later:"
+	echo "  Run ax init --acp-provider $ACP_PROVIDER"
+fi
+echo "  Use the ax-start skill to begin"
